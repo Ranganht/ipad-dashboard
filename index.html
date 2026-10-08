@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Home Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 32px;
+            margin-top: 35px;
+        }
+
+        .card {
+            margin: 40px auto;
+            padding: 30px;
+            width: 70%;
+            max-width: 500px;
+            background: #222;
+            border-radius: 20px;
+        }
+
+        .card-tesla {
+            border: 3px solid #e84118;
+            box-shadow: 0 0 30px rgba(232, 65, 24, 0.3);
+        }
+
+        .card-inside {
+            border: 3px solid #00b4d8;
+            box-shadow: 0 0 30px rgba(0, 180, 216, 0.3);
+        }
+
+        .label {
+            font-size: 24px;
+            color: #aaa;
+        }
+
+        .value {
+            font-size: 90px;
+            margin-top: 15px;
+        }
+
+        .value-tesla {
+            color: #e84118;
+        }
+
+        .value-inside {
+            color: #00b4d8;
+        }
+
+        .updated {
+            margin-top: 30px;
+            font-size: 16px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="title">🏠 HOME</div>
+
+<div class="card card-tesla">
+    <div class="label">TESLA</div>
+    <div class="value value-tesla" id="battery">--%</div>
+    <div class="updated" id="updated">Connecting...</div>
+</div>
+
+<div class="card card-inside">
+    <div class="label">INSIDE</div>
+    <div class="value value-inside" id="inside-temp">--°C</div>
+    <div class="updated" id="updated2">Connecting...</div>
+</div>
+
+<script>
+function updateTesla() {
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open(
+        "GET",
+        "/ha/api/states/sensor.anbaari_battery_level",
+        true
+    );
+
+    xhr.onreadystatechange = function() {
+
+        if (xhr.readyState !== 4) {
+            return;
+        }
+
+        if (xhr.status === 200) {
+
+            var data = JSON.parse(xhr.responseText);
+
+            document.getElementById("battery").innerHTML =
+                data.state + "%";
+
+            var now = new Date();
+
+            document.getElementById("updated").innerHTML =
+                "Updated " +
+                now.getHours() + ":" +
+                (now.getMinutes() < 10 ? "0" : "") +
+                now.getMinutes();
+
+        } else {
+
+            document.getElementById("battery").innerHTML = "--%";
+
+            document.getElementById("updated").innerHTML =
+                "Error: " + xhr.status;
+        }
+    };
+
+    xhr.send();
+}
+
+function updateInsideTemp() {
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open(
+        "GET",
+        "/ha/api/states/sensor.thermostat_room_temperature",
+        true
+    );
+
+    xhr.onreadystatechange = function() {
+
+        if (xhr.readyState !== 4) {
+            return;
+        }
+
+        if (xhr.status === 200) {
+
+            var data = JSON.parse(xhr.responseText);
+
+            document.getElementById("inside-temp").innerHTML =
+                Math.round(data.state) + "°C";
+
+            var now = new Date();
+
+            document.getElementById("updated2").innerHTML =
+                "Updated " +
+                now.getHours() + ":" +
+                (now.getMinutes() < 10 ? "0" : "") +
+                now.getMinutes();
+
+        } else {
+
+            document.getElementById("inside-temp").innerHTML = "--°C";
+
+            document.getElementById("updated2").innerHTML =
+                "Error: " + xhr.status;
+        }
+    };
+
+    xhr.send();
+}
+
+updateTesla();
+updateInsideTemp();
+
+setInterval(updateTesla, 3600000);
+setInterval(updateInsideTemp, 3600000);
+
+</script>
+
+</body>
+</html>
