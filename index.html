@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <title>Home Dashboard</title>
 
@@ -13,84 +15,1032 @@
             color: white;
             font-family: Arial, Helvetica, sans-serif;
             text-align: center;
+            -webkit-text-size-adjust: 100%;
         }
 
-        .title {
-            font-size: 32px;
-            margin-top: 35px;
+        /* --- full-screen rotating pages --- */
+
+        html,
+        body {
+            height: 100%;
         }
 
-        .card {
-            margin: 40px auto;
-            padding: 30px;
-            width: 70%;
-            max-width: 500px;
-            background: #222;
-            border-radius: 20px;
+        .page {
+            box-sizing: border-box;
+            min-height: 100%;
+            padding: 24px 24px 64px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-transition: opacity 0.35s ease;
+            transition: opacity 0.35s ease;
         }
 
-        .card-tesla {
-            border: 3px solid #e84118;
-            box-shadow: 0 0 30px rgba(232, 65, 24, 0.3);
+        .page.out {
+            opacity: 0;
         }
 
-        .card-inside {
-            border: 3px solid #00b4d8;
-            box-shadow: 0 0 30px rgba(0, 180, 216, 0.3);
+        .page-title {
+            font-size: 34px;
+            letter-spacing: 3px;
+            color: #999;
+            margin-bottom: 20px;
         }
 
-        .label {
-            font-size: 24px;
-            color: #aaa;
+        .big {
+            font-size: 130px;
+            line-height: 1;
+            white-space: nowrap;
         }
 
-        .value {
-            font-size: 90px;
-            margin-top: 15px;
+        .big .unit {
+            font-size: 38%;
+            color: #999;
         }
 
-        .value-tesla {
-            color: #e84118;
+        .big-detail {
+            margin-top: 24px;
+            font-size: 30px;
+            color: #bbb;
+            line-height: 1.35;
+            text-align: center;
         }
 
-        .value-inside {
-            color: #00b4d8;
+        .big-detail .line {
+            margin-top: 6px;
         }
 
-        .updated {
-            margin-top: 30px;
-            font-size: 16px;
+        .page .updated {
+            margin-top: 26px;
+            font-size: 18px;
             color: #777;
+        }
+
+        .col-red { color: #e74c3c; }
+        .col-green { color: #2ecc71; }
+        .col-yellow { color: #f1c40f; }
+        .col-blue { color: #00b4d8; }
+        .col-purple { color: #b07cc6; }
+        .col-orange { color: #e67e22; }
+        .col-teal { color: #1abc9c; }
+
+        /* Quatt flame while the heat pump is running */
+        .flame {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 10px;
+            pointer-events: none;
+        }
+
+        .flame img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .page.running .big {
+            text-shadow: 0 0 44px rgba(255, 130, 40, 0.7);
+        }
+
+        /* This Week page */
+        .week {
+            width: 100%;
+            max-width: 1200px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: stretch;
+            align-items: stretch;
+        }
+
+        .day-card {
+            box-sizing: border-box;
+            -webkit-flex: 1 1 0;
+            flex: 1 1 0;
+            min-width: 170px;
+            margin: 8px;
+            padding: 20px 14px 22px;
+            background: #1c1c1c;
+            border: 3px solid #333;
+            border-radius: 16px;
+        }
+
+        .day-card.today {
+            border-color: #3498db;
+            box-shadow: 0 0 24px rgba(52, 152, 219, 0.35);
+        }
+
+        .day-head {
+            font-size: 20px;
+            letter-spacing: 1px;
+            color: #999;
+            text-align: center;
+        }
+
+        .day-work {
+            font-size: 42px;
+            line-height: 1.1;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .day-work.home {
+            color: #2ecc71;
+        }
+
+        .day-work.office {
+            color: #e67e22;
+            font-size: 34px;
+        }
+
+        .day-work.none {
+            color: #555;
+        }
+
+        .day-appts {
+            min-height: 64px;
+            text-align: left;
+        }
+
+        .appt {
+            font-size: 20px;
+            color: #ccc;
+            line-height: 1.35;
+            margin-bottom: 5px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .appt-time {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .appt.more,
+        .appt.none {
+            color: #777;
+        }
+
+        /* Page indicator dots */
+        .dots {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 14px;
+            text-align: center;
+        }
+
+        .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 0 6px;
+            border-radius: 50%;
+            background: #333;
+        }
+
+        .dot.on {
+            background: #3498db;
+        }
+
+        /* Keep the big numbers inside the screen on small devices. */
+        @media (max-width: 520px) {
+            .page-title { font-size: 26px; }
+            .big { font-size: 90px; }
+            .big-detail { font-size: 22px; }
         }
     </style>
 </head>
 
 <body>
 
-<div class="title">🏠 HOME</div>
-
-<div class="card card-tesla">
-    <div class="label">TESLA</div>
-    <div class="value value-tesla" id="battery">--%</div>
-    <div class="updated" id="updated">Connecting...</div>
-</div>
-
-<div class="card card-inside">
-    <div class="label">INSIDE</div>
-    <div class="value value-inside" id="inside-temp">--°C</div>
-    <div class="updated" id="updated2">Connecting...</div>
-</div>
+<div class="page" id="page"></div>
+<div class="dots" id="dots"></div>
 
 <script>
-function updateTesla() {
+
+/* Wall dashboard for an old iPad (iOS 9 / Safari 9):
+   - ES5 only: no fetch, no arrows, no template literals
+   - no CSS grid, no flex gap
+   - one batched read of HA's state machine every 5 minutes
+   - the screen shows one topic per page and rotates through them
+     every PAGE_MS, so each page can use large type and show detail
+   Values from devices that stop reporting (car asleep, meter offline)
+   keep their last good reading instead of rendering "unknown". */
+
+var STATES_URL = "/ha/api/states";
+var REFRESH_MS = 300000;
+
+/* How long each page stays on screen, and the cross-fade time. */
+var PAGE_MS = 20000;
+var FADE_MS = 350;
+
+var ID = {
+    gridPower: "sensor.p1_meter_power",
+    gridTariff: "sensor.p1_meter_tariff",
+    solarPower: "sensor.envoy_122230015297_current_power_production",
+    solarToday: "sensor.envoy_122230015297_energy_production_today",
+    solarLeft: "sensor.energy_production_today_remaining",
+    solarForecastNow: "sensor.power_production_now",
+    solarForecastToday: "sensor.energy_production_today",
+    solarForecastTomorrow: "sensor.energy_production_tomorrow",
+    insideTemp: "sensor.thermostat_room_temperature",
+    insideSet: "sensor.thermostat_room_setpoint",
+    heating: "binary_sensor.thermostat_heating",
+    hotWater: "binary_sensor.thermostat_domestic_hot_water",
+    hpPower: "sensor.heatpump_1_power",
+    hpWorkingmode: "sensor.heatpump_1_workingmode",
+    hpCop: "sensor.heatpump_1_quatt_cop",
+    hpWaterIn: "sensor.heatpump_1_temperature_water_in",
+    hpWaterOut: "sensor.heatpump_1_temperature_water_out",
+    hpPressure: "sensor.boiler_water_pressure",
+    hpDefrost: "binary_sensor.heatpump_1_defrost",
+    weather: "weather.forecast_home",
+    lux: "sensor.estimated_outdoor_lux",
+    sunset: "sensor.sun_next_setting",
+    evLevel: "sensor.anbaari_battery_level",
+    evRange: "sensor.anbaari_battery_range",
+    evStatus: "binary_sensor.anbaari_status",
+    evCharging: "sensor.anbaari_charging"
+};
+
+/* Calendar entity ids, as created in Home Assistant (Remote Calendar).
+   - wfh:   working-location (Home/Office) all-day entries.
+   - appts: appointments shown on the day cards. */
+var CAL = {
+    wfh: ["calendar.rangan_work"],
+    appts: ["calendar.raneth"]
+};
+
+var rawStates = {};
+var lastGood = {};
+
+/* Which full-screen page is showing, and the rotation timers. */
+var pageIndex = 0;
+var pageTimer = null;
+var fadeTimer = null;
+
+/* Calendar events from Home Assistant, keyed by entity id. */
+var calendarCache = {};
+var calendarPending = 0;
+var lastStateError = 0;
+
+/* ---------- reading ---------- */
+
+function isMissing(value) {
+    if (value === null || value === undefined) {
+        return true;
+    }
+    if (typeof value === "number") {
+        return isNaN(value);
+    }
+    var s = String(value).trim().toLowerCase();
+    return s === "" || s === "unknown" || s === "unavailable" || s === "nan";
+}
+
+function entity(id) {
+    return rawStates[id] || null;
+}
+
+function stateNum(id) {
+    var e = entity(id);
+    if (!e || isMissing(e.state)) {
+        return null;
+    }
+    var n = Number(e.state);
+    return isNaN(n) ? null : n;
+}
+
+function stateText(id) {
+    var e = entity(id);
+    return e && !isMissing(e.state) ? String(e.state) : null;
+}
+
+function attrNum(id, name) {
+    var e = entity(id);
+    if (!e || !e.attributes) {
+        return null;
+    }
+    var v = e.attributes[name];
+    return isMissing(v) ? null : Number(v);
+}
+
+/* true = on, false = off, null = no usable value */
+function flagState(id) {
+    var e = entity(id);
+    if (!e || isMissing(e.state)) {
+        return null;
+    }
+    return e.state === "on";
+}
+
+/* Remember the last value we could actually read.
+   fresh === true means it came from this cycle. */
+function good(key, value, now) {
+    if (!isMissing(value)) {
+        lastGood[key] = { value: value, time: now };
+        return { value: value, time: now, fresh: true };
+    }
+    var kept = lastGood[key];
+    return {
+        value: kept ? kept.value : null,
+        time: kept ? kept.time : null,
+        fresh: false
+    };
+}
+
+/* ---------- formatting ---------- */
+
+function pad(n) {
+    return (n < 10 ? "0" : "") + n;
+}
+
+function clockOf(date) {
+    return date.getHours() + ":" + pad(date.getMinutes());
+}
+
+function clockFromISO(value) {
+    if (isMissing(value)) {
+        return null;
+    }
+    var d = new Date(value);
+    return isNaN(d.getTime()) ? null : clockOf(d);
+}
+
+function formatStatus(error, hasValue, fresh, time, waiting) {
+    if (error) {
+        return "Error: " + error +
+            (hasValue ? " - last seen " + clockOf(time) : "");
+    }
+    if (!hasValue) {
+        return waiting;
+    }
+    return (fresh ? "Updated " : "Last seen ") + clockOf(time);
+}
+
+function group(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+function round1(n) {
+    var s = (Math.round(n * 10) / 10).toFixed(1);
+    return s.slice(-2) === ".0" ? s.slice(0, -2) : s;
+}
+
+function round2(n) {
+    return (Math.round(n * 100) / 100).toFixed(2);
+}
+
+function parts(list) {
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+        if (list[i]) {
+            out.push(list[i]);
+        }
+    }
+    return out.join(" · ");
+}
+
+function tariffName(state) {
+    if (state === "1") {
+        return "Night rate";
+    }
+    if (state === "2") {
+        return "Day rate";
+    }
+    if (isMissing(state)) {
+        return "";
+    }
+    return "Tariff " + state;
+}
+
+function conditionName(state) {
+    if (isMissing(state)) {
+        return null;
+    }
+    var map = {
+        "clear-night": "Clear night",
+        "cloudy": "Cloudy",
+        "exceptional": "Exceptional",
+        "fog": "Fog",
+        "hail": "Hail",
+        "lightning": "Lightning",
+        "lightning-rainy": "Thunderstorm",
+        "partlycloudy": "Partly cloudy",
+        "pouring": "Pouring",
+        "rainy": "Rainy",
+        "snowy": "Snowy",
+        "snowy-rainy": "Sleet",
+        "sunny": "Sunny",
+        "windy": "Windy",
+        "windy-variant": "Windy"
+    };
+    var s = String(state);
+    return map[s] ? map[s] : s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function heatPumpMode() {
+    var defrost = flagState(ID.hpDefrost);
+    var heating = flagState(ID.heating);
+    var hotWater = flagState(ID.hotWater);
+
+    if (defrost === null && heating === null && hotWater === null) {
+        return null;
+    }
+    if (defrost) {
+        return "defrost";
+    }
+    if (heating) {
+        return hotWater ? "heating + hot water" : "heating";
+    }
+    if (hotWater) {
+        return "hot water";
+    }
+    return "standby";
+}
+
+/* True while the Quatt is actively working: the thermostat "heating"/"hot
+   water" binaries are only *enabled* flags, so we use the heat pump's own
+   working mode instead (0 = Standby, 2 = Heating in the CIC feed). */
+function quattRunning() {
+    var mode = stateText(ID.hpWorkingmode);
+    return mode !== null && mode !== "0";
+}
+
+function text(id, html) {
+    document.getElementById(id).innerHTML = html;
+}
+
+function parseJSON(xhr) {
+    try {
+        return JSON.parse(xhr.responseText);
+    } catch (e) {
+        return null;
+    }
+}
+
+/* ---------- pages ---------- */
+
+/* A big headline value plus a few detail lines, centred on the page. */
+function bigBlock(value, colorClass, lines, caption) {
+    var html = '<div class="big' +
+        (colorClass ? " " + colorClass : "") + '">' + value + '</div>' +
+        '<div class="big-detail">';
+
+    for (var i = 0; i < lines.length; i++) {
+        if (lines[i]) {
+            html += '<div class="line">' + lines[i] + '</div>';
+        }
+    }
+
+    return html + '</div>' +
+        '<div class="updated">' + caption + '</div>';
+}
+
+function pageGrid(now, error) {
+    var grid = good("gridPower", stateNum(ID.gridPower), now);
+    var tariff = entity(ID.gridTariff);
+    var value = "--";
+    var color = "";
+
+    if (grid.value !== null) {
+        var w = Math.round(grid.value);
+        value = group(Math.abs(w)) + ' <span class="unit">W</span>';
+        color = grid.value < 0 ? "col-green" : "col-red";
+    }
+
+    return bigBlock(value, color, [
+        grid.value === null ? "" : (grid.value < 0 ? "Exporting" : "Importing"),
+        tariffName(tariff ? tariff.state : null)
+    ], formatStatus(error, grid.value !== null, grid.fresh, grid.time,
+        "Waiting for meter..."));
+}
+
+function pageSolar(now, error) {
+    var solar = good("solarPower", stateNum(ID.solarPower), now);
+    var today = good("solarToday", stateNum(ID.solarToday), now);
+    var left = good("solarLeft", stateNum(ID.solarLeft), now);
+    var fcNow = good("solarForecastNow", stateNum(ID.solarForecastNow), now);
+    var fcToday = good("solarForecastToday", stateNum(ID.solarForecastToday), now);
+    var fcTomorrow = good("solarForecastTomorrow", stateNum(ID.solarForecastTomorrow), now);
+
+    var lines = [
+        parts([
+            today.value === null ? "" : round1(today.value) + " kWh today",
+            left.value === null ? "" : round1(left.value) + " kWh left"
+        ])
+    ];
+
+    if (fcNow.value !== null || fcToday.value !== null ||
+            fcTomorrow.value !== null) {
+        lines.push("Forecast: " + parts([
+            fcNow.value === null ? "" : group(Math.round(fcNow.value)) + " W now",
+            fcToday.value === null ? "" : round1(fcToday.value) + " kWh today",
+            fcTomorrow.value === null ? "" : round1(fcTomorrow.value) + " kWh tmrw"
+        ]));
+    }
+
+    return bigBlock(
+        solar.value === null ? "--" :
+            group(Math.round(solar.value * 1000)) + ' <span class="unit">W</span>',
+        "col-yellow", lines,
+        formatStatus(error, solar.value !== null, solar.fresh, solar.time,
+            "Waiting for solar..."));
+}
+
+function pageQuatt(now, error) {
+    var power = good("hpPower", stateNum(ID.hpPower), now);
+    var cop = good("hpCop", stateNum(ID.hpCop), now);
+    var waterIn = good("hpWaterIn", stateNum(ID.hpWaterIn), now);
+    var waterOut = good("hpWaterOut", stateNum(ID.hpWaterOut), now);
+    var pressure = good("hpPressure", stateNum(ID.hpPressure), now);
+    var mode = good("hpMode", heatPumpMode(), now);
+    var running = quattRunning();
+
+    var lines = [mode.value ? "mode: " + mode.value : ""];
+
+    if (cop.value !== null && cop.value > 0) {
+        lines.push("COP " + round1(cop.value));
+    }
+    if (waterIn.value !== null && waterOut.value !== null) {
+        lines.push("water " + round1(waterIn.value) + " → " +
+            round1(waterOut.value) + " °C");
+    }
+    if (pressure.value !== null) {
+        lines.push("boiler " + round2(pressure.value) + " bar");
+    }
+
+    var flame = running ?
+        '<div class="flame"><img src="20261012_201251619_iOS.gif" alt=""></div>' : "";
+
+    return flame + bigBlock(
+        power.value === null ? "--" :
+            group(Math.round(power.value)) + ' <span class="unit">W</span>',
+        running ? "col-orange" : "col-teal", lines,
+        formatStatus(error, power.value !== null, power.fresh, power.time,
+            "Waiting for heat pump..."));
+}
+
+function pageInside(now, error) {
+    var inside = good("insideTemp", stateNum(ID.insideTemp), now);
+    var set = good("insideSet", stateNum(ID.insideSet), now);
+
+    return bigBlock(
+        inside.value === null ? "--" :
+            round1(inside.value) + ' <span class="unit">°C</span>',
+        "col-blue",
+        [parts([
+            set.value === null ? "" : "set " + round1(set.value) + "°C",
+            flagState(ID.heating) === true ? "heating" : ""
+        ])],
+        formatStatus(error, inside.value !== null, inside.fresh, inside.time,
+            "Waiting for thermostat..."));
+}
+
+function pageOutside(now, error) {
+    var temp = good("outsideTemp", attrNum(ID.weather, "temperature"), now);
+    var condition = good("outsideCondition",
+        conditionName(stateText(ID.weather)), now);
+    var wind = good("outsideWind", attrNum(ID.weather, "wind_speed"), now);
+    var humidity = good("outsideHumidity", attrNum(ID.weather, "humidity"), now);
+    var lux = good("outsideLux", stateNum(ID.lux), now);
+    var sunset = good("outsideSunset", clockFromISO(stateText(ID.sunset)), now);
+
+    return bigBlock(
+        temp.value === null ? "--" :
+            round1(temp.value) + ' <span class="unit">°C</span>',
+        "col-purple",
+        [
+            condition.value,
+            parts([
+                wind.value === null ? "" : Math.round(wind.value) + " km/h",
+                humidity.value === null ? "" : Math.round(humidity.value) + "%"
+            ]),
+            parts([
+                lux.value === null ? "" : round1(lux.value / 1000) + " klx",
+                sunset.value === null ? "" : "sunset " + sunset.value
+            ])
+        ],
+        formatStatus(error, temp.value !== null, temp.fresh, temp.time,
+            "Waiting for weather..."));
+}
+
+function evStatusParts() {
+    var out = [];
+    var status = flagState(ID.evStatus);
+    var charging = entity(ID.evCharging);
+
+    if (status === true) {
+        out.push("awake");
+    } else if (status === false) {
+        out.push("asleep");
+    }
+    if (charging &&
+            (charging.state === "charging" || charging.state === "starting")) {
+        out.push("charging");
+    }
+    return out;
+}
+
+function pageTesla(now, error) {
+    var level = good("evLevel", stateNum(ID.evLevel), now);
+    var range = good("evRange", stateNum(ID.evRange), now);
+
+    return bigBlock(
+        level.value === null ? "--" :
+            Math.round(level.value) + '<span class="unit">%</span>',
+        "col-red",
+        [parts([
+            range.value === null ? "" : group(Math.round(range.value)) + " km",
+            parts(evStatusParts())
+        ])],
+        formatStatus(error, level.value !== null, level.fresh, level.time,
+            "Waiting for car..."));
+}
+
+/* ---------- calendar (working location + appointments) ---------- */
+
+/* List every calendar entity we care about, once each. */
+function calendarSources() {
+    var out = [];
+    var seen = {};
+    var lists = [CAL.wfh, CAL.appts];
+
+    for (var i = 0; i < lists.length; i++) {
+        var list = lists[i] || [];
+        for (var j = 0; j < list.length; j++) {
+            var id = list[j];
+            if (id && !seen[id]) {
+                seen[id] = 1;
+                out.push(id);
+            }
+        }
+    }
+
+    return out;
+}
+
+function fetchCalendar(id, startISO, endISO) {
+    var xhr = new XMLHttpRequest();
+    var url = "/ha/api/calendars/" + encodeURIComponent(id) +
+        "?start=" + encodeURIComponent(startISO) +
+        "&end=" + encodeURIComponent(endISO);
+
+    xhr.open("GET", url, true);
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) {
+            return;
+        }
+
+        var entry = calendarCache[id] || {};
+
+        if (xhr.status === 200) {
+            var list = parseJSON(xhr);
+            if (list && list.length !== undefined) {
+                entry.events = list;
+                entry.error = 0;
+                entry.time = new Date();
+            } else {
+                entry.error = "bad data";
+            }
+        } else {
+            entry.error = xhr.status;
+        }
+
+        calendarCache[id] = entry;
+        calendarPending--;
+
+        if (calendarPending <= 0) {
+            render(new Date(), lastStateError);
+        }
+    };
+
+    xhr.send();
+}
+
+function refreshCalendars() {
+    var ids = calendarSources();
+
+    if (!ids.length) {
+        return;
+    }
+
+    var start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    var end = new Date(start.getTime());
+    end.setDate(end.getDate() + 8);
+
+    calendarPending = ids.length;
+
+    for (var i = 0; i < ids.length; i++) {
+        fetchCalendar(ids[i], start.toISOString(), end.toISOString());
+    }
+}
+
+function dayKey(date) {
+    return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" +
+        pad(date.getDate());
+}
+
+function dayShort(date) {
+    return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][date.getDay()];
+}
+
+/* HA returns timing as an object: {dateTime: "..."} for timed events and
+   {date: "YYYY-MM-DD"} for all-day events. Older/other feeds use bare
+   strings, so accept both. */
+function parseDateOnly(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s));
+    if (m) {
+        return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    }
+    return new Date(s);
+}
+
+function datePart(value) {
+    if (value === null || value === undefined) {
+        return null;
+    }
+    if (typeof value === "string") {
+        return value.length === 10 ? parseDateOnly(value) : new Date(value);
+    }
+    if (value.dateTime) {
+        return new Date(value.dateTime);
+    }
+    if (value.date) {
+        return parseDateOnly(value.date);
+    }
+    return null;
+}
+
+function eventStart(ev) {
+    return ev ? datePart(ev.start) : null;
+}
+
+function eventEnd(ev) {
+    return ev ? datePart(ev.end) : null;
+}
+
+/* All-day events carry a DATE (no time); timed events carry a dateTime. */
+function isAllDayEvent(ev) {
+    if (!ev || !ev.start) {
+        return false;
+    }
+    if (typeof ev.start === "string") {
+        return ev.start.length === 10;
+    }
+    return !!(ev.start.date && !ev.start.dateTime);
+}
+
+function workingLabel(ev) {
+    var text = String(ev.summary || "") + " " + String(ev.location || "");
+    var lower = text.toLowerCase();
+
+    if (lower.indexOf("home") !== -1 || lower.indexOf("thuis") !== -1 ||
+            lower.indexOf("remote") !== -1 || lower.indexOf("wfh") !== -1) {
+        return "Home";
+    }
+    if (lower.indexOf("office") !== -1 || lower.indexOf("kantoor") !== -1 ||
+            lower.indexOf("werk") !== -1) {
+        return "Office";
+    }
+
+    return String(ev.summary || ev.location || "") || null;
+}
+
+/* dayKey -> "Home" / "Office" for every day a working-location entry covers. */
+function workingStatuses() {
+    var map = {};
+    var ids = CAL.wfh || [];
+
+    for (var i = 0; i < ids.length; i++) {
+        var entry = calendarCache[ids[i]];
+        if (!entry || !entry.events) {
+            continue;
+        }
+        for (var j = 0; j < entry.events.length; j++) {
+            var ev = entry.events[j];
+            if (!isAllDayEvent(ev)) {
+                continue;
+            }
+            var label = workingLabel(ev);
+            if (!label) {
+                continue;
+            }
+            var d = eventStart(ev);
+            var e = eventEnd(ev);
+            if (!d || !e) {
+                continue;
+            }
+            while (d < e) {
+                map[dayKey(d)] = label;
+                d.setDate(d.getDate() + 1);
+            }
+        }
+    }
+
+    return map;
+}
+
+/* dayKey -> appointments starting that day, sorted by time. */
+function appointmentsByDay() {
+    var map = {};
+    var ids = CAL.appts || [];
+
+    for (var i = 0; i < ids.length; i++) {
+        var entry = calendarCache[ids[i]];
+        if (!entry || !entry.events) {
+            continue;
+        }
+        for (var j = 0; j < entry.events.length; j++) {
+            var ev = entry.events[j];
+            var start = eventStart(ev);
+            if (!start || isNaN(start.getTime())) {
+                continue;
+            }
+            var key = dayKey(start);
+            if (!map[key]) {
+                map[key] = [];
+            }
+            map[key].push(ev);
+        }
+    }
+
+    for (var k in map) {
+        map[k].sort(function (a, b) {
+            return eventStart(a) - eventStart(b);
+        });
+    }
+
+    return map;
+}
+
+function calendarStatusText(now) {
+    var latest = null;
+    var hasData = false;
+    var error = 0;
+
+    for (var id in calendarCache) {
+        var entry = calendarCache[id];
+        if (entry.events) {
+            hasData = true;
+        }
+        if (entry.time && (!latest || entry.time > latest)) {
+            latest = entry.time;
+        }
+        if (entry.error && !entry.events) {
+            error = entry.error;
+        }
+    }
+
+    return formatStatus(error, hasData, true, latest || now,
+        "Waiting for calendar...");
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function dayName(date, index) {
+    return index === 0 ? "TODAY" :
+        dayShort(date).toUpperCase() + " " + date.getDate();
+}
+
+/* The next 5 days (today first) as a row of cards. */
+function pageWeek(now) {
+    var statuses = workingStatuses();
+    var appts = appointmentsByDay();
+    var html = ['<div class="week">'];
+
+    for (var i = 0; i < 5; i++) {
+        var d = new Date(now.getTime());
+        d.setDate(d.getDate() + i);
+
+        var work = statuses[dayKey(d)] || null;
+        var dow = d.getDay();
+        /* No WFH/office marker on a workday (Mon-Fri) => office day.
+           Weekends (and unmarked days) stay unlabeled. */
+        if (!work && dow >= 1 && dow <= 5) {
+            work = "Office";
+        }
+        var workClass = work === "Home" ? "home" :
+            (work === "Office" ? "office" : "none");
+        var list = appts[dayKey(d)] || [];
+        var lines = [];
+
+        for (var a = 0; a < list.length && a < 4; a++) {
+            var ev = list[a];
+            var time = isAllDayEvent(ev) ? "" :
+                '<span class="appt-time">' + clockOf(eventStart(ev)) + '</span> ';
+            lines.push('<div class="appt">' + time +
+                escapeHtml(ev.summary || "Appointment") + '</div>');
+        }
+        if (list.length > 4) {
+            lines.push('<div class="appt more">+' +
+                (list.length - 4) + ' more</div>');
+        }
+        if (!lines.length) {
+            lines.push('<div class="appt none">No appointments</div>');
+        }
+
+        html.push(
+            '<div class="day-card' + (i === 0 ? ' today' : '') + '">' +
+                '<div class="day-head">' + dayName(d, i) + '</div>' +
+                '<div class="day-work ' + workClass + '">' +
+                    (work ? work : "—") + '</div>' +
+                '<div class="day-appts">' + lines.join("") + '</div>' +
+            '</div>'
+        );
+    }
+
+    html.push('</div>');
+
+    var sources = calendarSources();
+    html.push('<div class="updated">' + (sources.length ?
+        calendarStatusText(now) : "No calendar configured") + '</div>');
+
+    return html.join("");
+}
+
+/* ---------- page rotation ---------- */
+
+var PAGES = [
+    { key: "grid", title: "⚡ GRID", render: pageGrid },
+    { key: "solar", title: "☀️ SOLAR", render: pageSolar },
+    { key: "quatt", title: "♨️ QUATT", render: pageQuatt },
+    { key: "inside", title: "🛋 INSIDE", render: pageInside },
+    { key: "outside", title: "🌤 OUTSIDE", render: pageOutside },
+    { key: "tesla", title: "🚗 TESLA", render: pageTesla },
+    { key: "week", title: "📅 THIS WEEK", render: pageWeek }
+];
+
+function dotsHtml() {
+    var out = "";
+
+    for (var i = 0; i < PAGES.length; i++) {
+        out += '<span class="dot' + (i === pageIndex ? " on" : "") + '"></span>';
+    }
+
+    return out;
+}
+
+/* Draw the current page immediately (no fade). */
+function paintPage() {
+    var page = PAGES[pageIndex];
+    var running = page.key === "quatt" && quattRunning();
+    var el = document.getElementById("page");
+
+    el.innerHTML = '<div class="page-title">' + page.title + '</div>' +
+        page.render(new Date(), lastStateError);
+    el.className = running ? "page running" : "page";
+
+    text("dots", dotsHtml());
+}
+
+/* Fade out, swap to page i, fade back in. */
+function showPage(i) {
+    pageIndex = ((i % PAGES.length) + PAGES.length) % PAGES.length;
+
+    document.getElementById("page").className = "page out";
+
+    window.clearTimeout(fadeTimer);
+    fadeTimer = window.setTimeout(paintPage, FADE_MS);
+}
+
+function startPages() {
+    paintPage();
+    pageTimer = window.setInterval(function () {
+        showPage(pageIndex + 1);
+    }, PAGE_MS);
+}
+
+/* ---------- rendering ---------- */
+
+/* Re-draw the current page with fresh data (called after each fetch). */
+function render(now, error) {
+    paintPage();
+}
+
+/* ---------- refresh loop ---------- */
+
+function refresh() {
 
     var xhr = new XMLHttpRequest();
 
-    xhr.open(
-        "GET",
-        "/ha/api/states/sensor.anbaari_battery_level",
-        true
-    );
+    xhr.open("GET", STATES_URL, true);
 
     xhr.onreadystatechange = function() {
 
@@ -98,81 +1048,43 @@ function updateTesla() {
             return;
         }
 
-        if (xhr.status === 200) {
+        var now = new Date();
+        var error = xhr.status === 200 ? 0 : xhr.status;
 
-            var data = JSON.parse(xhr.responseText);
+        if (!error) {
+            var list = parseJSON(xhr);
 
-            document.getElementById("battery").innerHTML =
-                data.state + "%";
-
-            var now = new Date();
-
-            document.getElementById("updated").innerHTML =
-                "Updated " +
-                now.getHours() + ":" +
-                (now.getMinutes() < 10 ? "0" : "") +
-                now.getMinutes();
-
-        } else {
-
-            document.getElementById("battery").innerHTML = "--%";
-
-            document.getElementById("updated").innerHTML =
-                "Error: " + xhr.status;
+            if (list && list.length) {
+                var next = {};
+                for (var i = 0; i < list.length; i++) {
+                    next[list[i].entity_id] = list[i];
+                }
+                rawStates = next;
+            } else {
+                error = "bad data";
+            }
         }
+
+        /* No fresh data: fall back to the last good values. */
+        if (error) {
+            rawStates = {};
+        }
+
+        lastStateError = error;
+        render(now, error);
+        refreshCalendars();
     };
 
     xhr.send();
 }
 
-function updateInsideTemp() {
+startPages();
+refresh();
+setInterval(refresh, REFRESH_MS);
 
-    var xhr = new XMLHttpRequest();
-
-    xhr.open(
-        "GET",
-        "/ha/api/states/sensor.thermostat_room_temperature",
-        true
-    );
-
-    xhr.onreadystatechange = function() {
-
-        if (xhr.readyState !== 4) {
-            return;
-        }
-
-        if (xhr.status === 200) {
-
-            var data = JSON.parse(xhr.responseText);
-
-            document.getElementById("inside-temp").innerHTML =
-                Math.round(data.state) + "°C";
-
-            var now = new Date();
-
-            document.getElementById("updated2").innerHTML =
-                "Updated " +
-                now.getHours() + ":" +
-                (now.getMinutes() < 10 ? "0" : "") +
-                now.getMinutes();
-
-        } else {
-
-            document.getElementById("inside-temp").innerHTML = "--°C";
-
-            document.getElementById("updated2").innerHTML =
-                "Error: " + xhr.status;
-        }
-    };
-
-    xhr.send();
-}
-
-updateTesla();
-updateInsideTemp();
-
-setInterval(updateTesla, 3600000);
-setInterval(updateInsideTemp, 3600000);
+/* Coming back to the tab after the iPad slept shouldn't wait for the
+   next 5 minute tick. */
+window.addEventListener("focus", refresh);
 
 </script>
 
