@@ -16,6 +16,10 @@
             font-family: Arial, Helvetica, sans-serif;
             text-align: center;
             -webkit-text-size-adjust: 100%;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
         }
 
         /* --- full-screen rotating pages --- */
@@ -73,6 +77,66 @@
 
         .big-detail .line {
             margin-top: 6px;
+        }
+
+        /* --- home / overview page --- */
+
+        .home-date {
+            font-size: 24px;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 18px;
+        }
+
+        .home-grid {
+            width: 100%;
+            max-width: 1100px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-align-items: stretch;
+            align-items: stretch;
+        }
+
+        .home-tile {
+            box-sizing: border-box;
+            -webkit-flex: 1 1 0;
+            flex: 1 1 0;
+            min-width: 250px;
+            margin: 8px;
+            padding: 18px 14px 20px;
+            background: #1c1c1c;
+            border: 3px solid #333;
+            border-radius: 16px;
+        }
+
+        .home-tile .tile-label {
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: #999;
+        }
+
+        .home-tile .tile-value {
+            font-size: 62px;
+            line-height: 1.1;
+            margin-top: 8px;
+            white-space: nowrap;
+        }
+
+        .home-tile .tile-value .unit {
+            font-size: 38%;
+            color: #999;
+        }
+
+        .home-tile .tile-sub {
+            min-height: 26px;
+            margin-top: 6px;
+            font-size: 18px;
+            color: #bbb;
+            line-height: 1.3;
         }
 
         .page .updated {
@@ -212,10 +276,17 @@
         }
 
         /* Keep the big numbers inside the screen on small devices. */
+        @media (max-width: 900px) {
+            .home-tile { min-width: 46%; }
+            .home-tile .tile-value { font-size: 52px; }
+        }
+
         @media (max-width: 520px) {
             .page-title { font-size: 26px; }
             .big { font-size: 90px; }
             .big-detail { font-size: 22px; }
+            .home-tile { min-width: 100%; }
+            .home-tile .tile-value { font-size: 56px; }
         }
     </style>
 </head>
@@ -230,18 +301,24 @@
 /* Wall dashboard for an old iPad (iOS 9 / Safari 9):
    - ES5 only: no fetch, no arrows, no template literals
    - no CSS grid, no flex gap
-   - one batched read of HA's state machine every 5 minutes
-   - the screen shows one topic per page and rotates through them
-     every PAGE_MS, so each page can use large type and show detail
+   - one batched read of HA's state machine every 30 seconds
+   - the screen shows one topic per page and rotates through them,
+     with the overview page between every detail page
+   - swipe left/right to move manually
+   - polls index.html and reloads itself after a new version is deployed
    Values from devices that stop reporting (car asleep, meter offline)
    keep their last good reading instead of rendering "unknown". */
 
 var STATES_URL = "/ha/api/states";
-var REFRESH_MS = 300000;
+var REFRESH_MS = 30000;
 
 /* How long each page stays on screen, and the cross-fade time. */
 var PAGE_MS = 20000;
+var HOME_MS = 15000;
 var FADE_MS = 350;
+
+/* How often to check whether index.html was replaced by a new deploy. */
+var VERSION_CHECK_MS = 30000;
 
 var ID = {
     gridPower: "sensor.p1_meter_power",
@@ -505,6 +582,80 @@ function bigBlock(value, colorClass, lines, caption) {
         '<div class="updated">' + caption + '</div>';
 }
 
+/* A tile for the overview page: small label, big value, detail line. */
+function homeTile(label, value, sub, colorClass) {
+    return '<div class="home-tile">' +
+        '<div class="tile-label">' + label + '</div>' +
+        '<div class="tile-value' +
+            (colorClass ? " " + colorClass : "") + '">' + value + '</div>' +
+        '<div class="tile-sub">' + (sub || "") + '</div>' +
+    '</div>';
+}
+
+/* Overview of every topic, shown between the detail pages. */
+function pageHome(now, error) {
+    var grid = good("gridPower", stateNum(ID.gridPower), now);
+    var solar = good("solarPower", stateNum(ID.solarPower), now);
+    var solarToday = good("solarToday", stateNum(ID.solarToday), now);
+    var hpPower = good("hpPower", stateNum(ID.hpPower), now);
+    var hpMode = good("hpMode", heatPumpMode(), now);
+    var inside = good("insideTemp", stateNum(ID.insideTemp), now);
+    var outside = good("outsideTemp", attrNum(ID.weather, "temperature"), now);
+    var evLevel = good("evLevel", stateNum(ID.evLevel), now);
+    var evRange = good("evRange", stateNum(ID.evRange), now);
+
+    var gridValue = "--";
+    var gridColor = "";
+    var gridSub = "";
+
+    if (grid.value !== null) {
+        gridValue = group(Math.abs(Math.round(grid.value))) +
+            ' <span class="unit">W</span>';
+        gridColor = grid.value < 0 ? "col-green" : "col-red";
+        gridSub = grid.value < 0 ? "Exporting" : "Importing";
+    }
+
+    var html = '<div class="home-date">' +
+        dayShort(now) + " " + now.getDate() + " " + monthShort(now) +
+        " · " + clockOf(now) + '</div>' +
+        '<div class="home-grid">';
+
+    html += homeTile("⚡ GRID", gridValue, gridSub, gridColor);
+    html += homeTile("☀️ SOLAR",
+        solar.value === null ? "--" :
+            group(Math.round(solar.value * 1000)) + ' <span class="unit">W</span>',
+        solarToday.value === null ? "" : round1(solarToday.value) + " kWh today",
+        "col-yellow");
+    html += homeTile("♨️ QUATT",
+        hpPower.value === null ? "--" :
+            group(Math.round(hpPower.value)) + ' <span class="unit">W</span>',
+        hpMode.value ? "mode: " + hpMode.value : "",
+        quattRunning() ? "col-orange" : "col-teal");
+    html += homeTile("🛋 INSIDE",
+        inside.value === null ? "--" :
+            round1(inside.value) + ' <span class="unit">°C</span>',
+        flagState(ID.heating) === true ? "heating" : "",
+        "col-blue");
+    html += homeTile("🌤 OUTSIDE",
+        outside.value === null ? "--" :
+            round1(outside.value) + ' <span class="unit">°C</span>',
+        conditionName(stateText(ID.weather)) || "",
+        "col-purple");
+    html += homeTile("🚗 TESLA",
+        evLevel.value === null ? "--" :
+            Math.round(evLevel.value) + '<span class="unit">%</span>',
+        parts([
+            evRange.value === null ? "" : group(Math.round(evRange.value)) + " km",
+            parts(evStatusParts())
+        ]),
+        "col-red");
+
+    html += '</div>';
+
+    return html +
+        '<div class="updated">' + formatStatus(error, true, !error, now, "") + '</div>';
+}
+
 function pageGrid(now, error) {
     var grid = good("gridPower", stateNum(ID.gridPower), now);
     var tariff = entity(ID.gridTariff);
@@ -756,6 +907,11 @@ function dayShort(date) {
     return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][date.getDay()];
 }
 
+function monthShort(date) {
+    return ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
+}
+
 /* HA returns timing as an object: {dateTime: "..."} for timed events and
    {date: "YYYY-MM-DD"} for all-day events. Older/other feeds use bare
    strings, so accept both. */
@@ -978,6 +1134,7 @@ function pageWeek(now) {
 /* ---------- page rotation ---------- */
 
 var PAGES = [
+    { key: "home", title: "🏠 HOME", render: pageHome },
     { key: "grid", title: "⚡ GRID", render: pageGrid },
     { key: "solar", title: "☀️ SOLAR", render: pageSolar },
     { key: "quatt", title: "♨️ QUATT", render: pageQuatt },
@@ -986,6 +1143,10 @@ var PAGES = [
     { key: "tesla", title: "🚗 TESLA", render: pageTesla },
     { key: "week", title: "📅 THIS WEEK", render: pageWeek }
 ];
+
+/* Show HOME between every detail page: home, grid, home, solar, ... */
+var ORDER = [0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7];
+var orderPos = 0;
 
 function dotsHtml() {
     var out = "";
@@ -1010,21 +1171,29 @@ function paintPage() {
     text("dots", dotsHtml());
 }
 
-/* Fade out, swap to page i, fade back in. */
-function showPage(i) {
-    pageIndex = ((i % PAGES.length) + PAGES.length) % PAGES.length;
+/* Fade out, swap to the next position in ORDER, fade back in. */
+function showOrder(pos) {
+    orderPos = ((pos % ORDER.length) + ORDER.length) % ORDER.length;
+    pageIndex = ORDER[orderPos];
 
     document.getElementById("page").className = "page out";
 
     window.clearTimeout(fadeTimer);
     fadeTimer = window.setTimeout(paintPage, FADE_MS);
+
+    scheduleNext();
+}
+
+function scheduleNext() {
+    window.clearTimeout(pageTimer);
+    pageTimer = window.setTimeout(function () {
+        showOrder(orderPos + 1);
+    }, pageIndex === 0 ? HOME_MS : PAGE_MS);
 }
 
 function startPages() {
     paintPage();
-    pageTimer = window.setInterval(function () {
-        showPage(pageIndex + 1);
-    }, PAGE_MS);
+    scheduleNext();
 }
 
 /* ---------- rendering ---------- */
@@ -1078,13 +1247,117 @@ function refresh() {
     xhr.send();
 }
 
+/* ---------- reload when a new version of this file is deployed ---------- */
+
+var appVersion = null;
+var reloadPending = false;
+
+function versionOf(xhr) {
+    return [
+        xhr.getResponseHeader("Last-Modified") || "",
+        xhr.getResponseHeader("ETag") || "",
+        xhr.getResponseHeader("Content-Length") || ""
+    ].join("|");
+}
+
+function checkVersion() {
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("HEAD", "/index.html?check=" + (new Date().getTime()), true);
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4 || xhr.status !== 200) {
+            return;
+        }
+
+        var version = versionOf(xhr);
+
+        /* The first check just records the version already on screen. */
+        if (!appVersion) {
+            appVersion = version;
+            return;
+        }
+
+        if (version && version !== appVersion && !reloadPending) {
+            reloadPending = true;
+            window.location.replace("/?v=" + (new Date().getTime()));
+        }
+    };
+
+    xhr.send();
+}
+
+/* ---------- manual swipe ---------- */
+
+var touchStartX = null;
+var touchStartY = null;
+
+function onSwipe(dx, dy) {
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) {
+        return;
+    }
+
+    /* Swipe left = next page, swipe right = previous page. */
+    showOrder(orderPos + (dx < 0 ? 1 : -1));
+}
+
+document.addEventListener("touchstart", function (e) {
+    if (e.touches.length !== 1) {
+        touchStartX = null;
+        return;
+    }
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+}, false);
+
+document.addEventListener("touchmove", function (e) {
+    if (touchStartX === null || e.touches.length !== 1) {
+        return;
+    }
+
+    var dx = e.touches[0].clientX - touchStartX;
+    var dy = e.touches[0].clientY - touchStartY;
+
+    /* Stop horizontal rubber-banding/back-swipe; keep vertical scroll. */
+    if (Math.abs(dx) > Math.abs(dy)) {
+        e.preventDefault();
+    }
+}, false);
+
+document.addEventListener("touchend", function (e) {
+    if (touchStartX === null) {
+        return;
+    }
+
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touchStartX;
+    var dy = t.clientY - touchStartY;
+
+    touchStartX = null;
+    touchStartY = null;
+    onSwipe(dx, dy);
+}, false);
+
 startPages();
 refresh();
 setInterval(refresh, REFRESH_MS);
 
-/* Coming back to the tab after the iPad slept shouldn't wait for the
-   next 5 minute tick. */
-window.addEventListener("focus", refresh);
+checkVersion();
+setInterval(checkVersion, VERSION_CHECK_MS);
+
+/* Coming back to the tab after the iPad slept shouldn't wait for the next
+   tick, and should also pick up a newly deployed version. */
+window.addEventListener("focus", function () {
+    refresh();
+    checkVersion();
+});
+
+document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) {
+        refresh();
+        checkVersion();
+    }
+}, false);
 
 </script>
 
