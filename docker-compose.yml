@@ -4,11 +4,19 @@ services:
     container_name: ipad-dashboard
     restart: unless-stopped
     ports:
-      - "8080:80"
+      # Glance owns :8080, so the wall display lives on :8081.
+      - "8081:80"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ./:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Mount only the files the page needs. Mounting the whole directory
+      # would expose .env and config files over HTTP.
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./20261012_201251619_iOS.gif:/usr/share/nginx/html/20261012_201251619_iOS.gif:ro
+      # The HA bearer token is injected at container start via envsubst.
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    environment:
+      # Restrict envsubst to the one variable this config actually needs.
+      NGINX_ENVSUBST_FILTER: HA_TOKEN
     env_file:
       - .env
